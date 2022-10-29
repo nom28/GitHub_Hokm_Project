@@ -1,4 +1,5 @@
 from socket import *
+
 # import re
 # import random
 
@@ -9,7 +10,7 @@ USERNAME = None
 class Client:
     def __init__(self, server_ip="localhost", server_port=55555):
         self.server_addr = server_ip, server_port
-        
+
         self.cards = []
         self.id = -1
         self.strong = ""
@@ -30,7 +31,6 @@ class Client:
 
         if USERNAME:
             self.send(f"username:{USERNAME}")
-    
 
     def start_game(self):
         self.get_id_and_identify_to_server()
@@ -112,14 +112,14 @@ class Client:
             if status == "GAME_OVER":
                 print("\ngame over!")
                 exit()
-            elif status == "PLAYER_DISCONNECTED":
+            elif status.startswith("PLAYER_DISCONNECTED"):
                 print("\nplayer disconnected\nexiting game")
                 exit()
             elif status == "SERVER_DISCONNECTED":
                 self.handle_server_crash()
                 continue  # using that to do a new turn
 
-            print("status raw data:",status)
+            print("status raw data:", status)
 
             played_suit = status.split(",")[0].split(":")[1]
 
@@ -138,6 +138,9 @@ class Client:
             if response == "SERVER_DISCONNECTED":
                 self.handle_server_crash()
                 continue  # using that to do a new turn
+            elif response.startswith("PLAYER_DISCONNECTED"):
+                print("player disconnected")
+                exit()
             elif response == "ok":
                 self.cards.remove(card)
             else:
@@ -148,12 +151,12 @@ class Client:
                 print(f"error when recv game status {game_status}")
                 exit()
 
-            if game_status == "PLAYER_DISCONNECTED":
+            if game_status.startswith("PLAYER_DISCONNECTED"):
                 print("player disconnected")
                 exit()
             elif game_status == "SERVER_DISCONNECTED":
                 self.handle_server_crash()
-                
+
                 # get new game status
                 game_status, work = self.recv()
                 if not work:
