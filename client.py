@@ -1,5 +1,5 @@
 from socket import *
-
+from card_classes import *
 # import re
 # import random
 
@@ -41,7 +41,7 @@ class Client:
         if not work:
             print(f"error when recv cards_teams_strong {cards_teams_strong}")
             exit()
-        print("raw data of cards, teams and strong:", cards_teams_strong)
+        # print("raw data of cards, teams and strong suite:", cards_teams_strong)
 
         # if the data in corrupted then request new turn and data
         if len(cards_teams_strong.split(",")) != 3:
@@ -49,10 +49,12 @@ class Client:
 
         cards, teams, strong = cards_teams_strong.split(",")
 
-        self.cards = [(c.split("*")[0], c.split("*")[1]) for c in cards.split("|")]
-        print("teams and strong:", teams, strong)
+        self.cards = [Card(Suit[c.split("*")[0]], Rank[c.split("*")[1]]) for c in cards.split("|")]
+        print(self.cards)
+        print("teams:", teams)
+        print("strong suit:", strong, "\n")
 
-        self.strong = strong.split(":")[1]
+        self.strong = Suit[strong.split(":")[1]]
 
         self.game_loop()
 
@@ -81,7 +83,8 @@ class Client:
             print(f"error when recv ruler {ruler}")
             exit()
 
-        print("ruler data:", ruler)
+        # print("ruler id:", ruler.split(":")[1])
+        # ^ It is only relevent if we are the ruler, so print only if we are the ruler
         ruler = ruler.split(":")[1]
 
         first_5_cards, work = self.recv()
@@ -90,7 +93,10 @@ class Client:
             print(f"error when recv 5 cards {first_5_cards}")
             exit()
         first_5_cards = first_5_cards.split("|")
-        if ruler == self.id:
+
+        if ruler == self.id:  # v need to change this to pick best card
+            print("we are the ruler")
+
             strong_to_send = first_5_cards[0].split("*")[0]
             print("chosen strong suit:", strong_to_send)
             self.send(f"set_strong:{strong_to_send}")
@@ -100,9 +106,10 @@ class Client:
             if not work:
                 print(f"error when recv response strong {response}")
                 exit()
-            print("response strong data:", response)
+            print("response on strong card proposal:", response)
 
     def game_loop(self):
+        print("Game has started \n")
         while True:
             status, work = self.recv()
             if not work:
@@ -112,21 +119,23 @@ class Client:
             if status == "GAME_OVER":
                 print("\ngame over!")
                 exit()
-            elif status == "PLAYER_DISCONNECTED":
+            elif status.startswith("PLAYER_DISCONNECTED"):
                 print("\nplayer disconnected\nexiting game")
                 exit()
             elif status == "SERVER_DISCONNECTED":
                 self.handle_server_crash()
                 continue  # using that to do a new turn
 
-            print("status raw data:", status)
+            print("\nstart of round:")
+            print(status.split(",")[0])
+            print(status.split(",")[1])  # v could optimize the way this looks
 
             played_suit = status.split(",")[0].split(":")[1]
 
             card = self.choose_card(played_suit)
             print("chosen card:", card)
 
-            self.send(f"play_card:{'*'.join(card)}")
+            self.send(f"play_card:{card}")
 
             response, work = self.recv()
 
@@ -138,6 +147,9 @@ class Client:
             if response == "SERVER_DISCONNECTED":
                 self.handle_server_crash()
                 continue  # using that to do a new turn
+            elif response.startswith("PLAYER_DISCONNECTED"):
+                print("player disconnected")
+                exit()
             elif response == "ok":
                 self.cards.remove(card)
             else:
@@ -148,7 +160,7 @@ class Client:
                 print(f"error when recv game status {game_status}")
                 exit()
 
-            if game_status == "PLAYER_DISCONNECTED":
+            if game_status.startswith("PLAYER_DISCONNECTED"):
                 print("player disconnected")
                 exit()
             elif game_status == "SERVER_DISCONNECTED":
@@ -159,7 +171,20 @@ class Client:
                 if not work:
                     print(f"error when recv game status 2 {game_status}")
                     exit()
-            print("round over data:", game_status)
+
+            print("round over")
+            print(game_status.split(",")[0])
+
+            try:
+                scores = game_status.split(",")[1].split("|")
+                if str(self.id) in scores[0].split("*")[0]:
+                    print(f"Us - {scores[0].split('*')[1]}| Opp - {scores[1].split('*')[1]}")
+                else:
+                    print(f"Us - {scores[1].split('*')[1]}| Opp - {scores[0].split('*')[1]}")
+            except IndexError:
+                print(game_status.split(",")[1])
+                raise
+            print(game_status.split(",")[2])
 
     def handle_server_crash(self):
         self.client.close()
@@ -169,16 +194,18 @@ class Client:
         self.init_sock()
         self.get_id_and_identify_to_server()
 
-    def choose_card(self, played_suit):
+    def choose_card(self, played_suit):  # v add the whole logic in here
         if played_suit == "":
             return self.cards[0]
 
+        played_suit = Suit[played_suit]
+
         for card in self.cards:
-            if card[0] == played_suit:
+            if card.suit == played_suit:
                 return card
 
         for card in self.cards:
-            if card[0] == self.strong:
+            if card.suit == self.strong:
                 return card
 
         return self.cards[0]
@@ -188,8 +215,10 @@ class Client:
             msg_size = self.client.recv(8)
         except:
             return "recv error", False
+
         if not msg_size:
             return "msg length error", False
+
         try:
             msg_size = int(msg_size)
         except:  # not an integer
