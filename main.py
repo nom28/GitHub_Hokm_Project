@@ -1,22 +1,8 @@
-# This is a sample Python script.
+from card_classes import *
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+x = "rank_J"
+y = "rank_6"
 
+print(Rank[x].value)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-def print_hello(name):
-    print(f'Hello, {name}')
-
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-    print_hello('PyCharm')
-    #hello
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+print(Rank[x].value + Rank[y].value)

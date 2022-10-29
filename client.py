@@ -97,9 +97,20 @@ class Client:
         if ruler == self.id:  # v need to change this to pick best card
             print("we are the ruler")
 
-            strong_to_send = first_5_cards[0].split("*")[0]
-            print("chosen strong suit:", strong_to_send)
-            self.send(f"set_strong:{strong_to_send}")
+            sum_of_suits = {
+                "DIAMONDS": 0,
+                "HEARTS": 0,
+                "SPADES": 0,
+                "CLUBS": 0
+            }
+            for card in first_5_cards:
+                suit = card.split("*")[0]
+                sum_of_suits[suit] += Rank[card.split("*")[1]].value
+
+            strong_suit = max(sum_of_suits, key=lambda x: sum_of_suits[x])
+
+            print("chosen strong suit:", strong_suit)
+            self.send(f"set_strong:{strong_suit}")
 
             response, work = self.recv()
 
