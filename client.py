@@ -12,6 +12,11 @@ class Client:
         self.server_addr = server_ip, server_port
 
         self.cards = []
+        self.cards_left = []
+        for suit in range(4):
+            for rank in range(13):
+                self.cards_left.append(Card(Suit(suit + 1), Rank(rank + 2)))
+        print(*self.cards_left, sep=", ")
         self.id = -1
         self.strong = ""
 
@@ -129,6 +134,7 @@ class Client:
 
             if status == "GAME_OVER":
                 print("\ngame over!")
+                print(*self.cards_left, sep=", ")
                 exit()
             elif status.startswith("PLAYER_DISCONNECTED"):
                 print("\nplayer disconnected\nexiting game")
@@ -195,7 +201,14 @@ class Client:
             except IndexError:
                 print(game_status.split(",")[1])
                 raise
-            print(game_status.split(",")[2])
+
+            print(game_status.split(",")[2])  # round cards
+
+            round_cards = [Card(Suit[str_card.split("*")[0]], Rank[str_card.split("*")[1]])
+                           for str_card in game_status.split(",")[2].split(":")[1].split("|")]
+
+            for round_card in round_cards:
+                self.cards_left.remove(round_card)
 
     def handle_server_crash(self):
         self.client.close()
