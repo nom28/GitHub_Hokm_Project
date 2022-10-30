@@ -12,10 +12,7 @@ class Client:
         self.server_addr = server_ip, server_port
 
         self.cards = []
-        self.cards_left = []
-        for suit in range(4):
-            for rank in range(13):
-                self.cards_left.append(Card(Suit(suit + 1), Rank(rank + 2)))
+        self.cards_left = [(Card(Suit(suit + 1), Rank(rank + 2))) for rank in range(13) for suit in range(4)]
         print(*self.cards_left, sep=", ")
         self.id = -1
         self.strong = ""
