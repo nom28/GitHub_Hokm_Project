@@ -1,5 +1,6 @@
 from socket import *
 from card_classes import *
+
 # import re
 # import random
 
@@ -217,7 +218,11 @@ class Client:
 
     def choose_card(self, played_suit):  # v add the whole logic in here
         if played_suit == "":
-            return self.cards[0]
+            temp_cards = list(filter(lambda a: a.suit != self.strong, self.cards.copy()))
+            if len(temp_cards) > 0:
+                return max(temp_cards, key=lambda a: a.rank.value)
+            else:
+                return max(self.cards.copy(), key=lambda a: a.rank.value)
 
         played_suit = Suit[played_suit]
 
