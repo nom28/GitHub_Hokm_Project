@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Suit(Enum):
+    NONE = 0
     SPADES = 1
     CLUBS = 2
     DIAMONDS = 3
@@ -13,6 +14,7 @@ class Suit(Enum):
 
 
 class Rank(Enum):
+    NONE = 0
     rank_2 = 2
     rank_3 = 3
     rank_4 = 4

@@ -16,6 +16,7 @@ class Client:
         self.cards_left = [(Card(Suit(suit + 1), Rank(rank + 2))) for rank in range(13) for suit in range(4)]
         print(*self.cards_left, sep=", ")
         self.id = -1
+        self.teammate = -1
         self.strong = ""
 
         self.init_sock()
@@ -55,6 +56,10 @@ class Client:
         self.cards = [Card(Suit[c.split("*")[0]], Rank[c.split("*")[1]]) for c in cards.split("|")]
         print(self.cards)
         print("teams:", teams)
+        teams = teams.split(":")[1].split("|")
+        my_team = teams[0].split("+") if self.id in teams[0] else teams[1].split("+")
+        self.teammate = int(my_team[0]) if my_team[1] == self.id else int(my_team[1])
+
         print("strong suit:", strong, "\n")
 
         self.strong = Suit[strong.split(":")[1]]
@@ -146,8 +151,12 @@ class Client:
             print(status.split(",")[1])  # v could optimize the way this looks
 
             played_suit = status.split(",")[0].split(":")[1]
+            # played_cards = status.split(",")[1].split(":")[1].split("|")
+            played_cards = [Card(Suit[c.split("*")[0]], Rank[c.split("*")[1]]) if c != "" else
+                            Card(Suit["NONE"], Rank["NONE"])
+                            for c in status.split(",")[1].split(":")[1].split("|")]
 
-            card = self.choose_card(played_suit)
+            card = self.choose_card(played_suit, played_cards)
             print("chosen card:", card)
 
             self.send(f"play_card:{card}")
@@ -216,7 +225,7 @@ class Client:
         self.init_sock()
         self.get_id_and_identify_to_server()
 
-    def choose_card(self, played_suit):  # v add the whole logic in here
+    def choose_card(self, played_suit, played_cards):  # v add the whole logic in here
         if played_suit == "":
             temp_cards = list(filter(lambda a: a.suit != self.strong, self.cards.copy()))
             if len(temp_cards) > 0:
@@ -225,6 +234,17 @@ class Client:
                 return max(self.cards.copy(), key=lambda a: a.rank.value)
 
         played_suit = Suit[played_suit]
+
+        turn = self.__get_turn_in_round(played_cards)
+        strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards)
+
+        if turn == 2:
+            pass
+        elif turn == 3:
+            pass
+        elif turn == 4:
+            if strongest_on_board_id == self.teammate:
+                card = self.__get_weakest()
 
         for card in self.cards:
             if card.suit == played_suit:
@@ -235,6 +255,31 @@ class Client:
                 return card
 
         return self.cards[0]
+
+    def __get_turn_in_round(self, played_cards):
+        turns = 1
+        for card in played_cards:
+            if card.suit is not Suit.NONE:
+                turns = turns + 1
+
+        return turns
+
+    def __get_strongest_card_on_board(self, played_cards):
+        strong_cards = list(filter(lambda x: x.suit == self.strong, played_cards))
+        if len(strong_cards) > 0:
+            strongest_card = max(strong_cards, key=lambda x: x.rank.value)
+        else:
+            strongest_card = max(played_cards, key=lambda x: x.rank.value)
+
+        return played_cards.index(strongest_card) + 1, strongest_card
+
+    def __get_weakest(self):
+        weakest_cards = list(filter(lambda x: x.suit != self.strong, self.cards))
+        if len(weakest_cards) > 0:
+            weakest_card = min(weakest_cards, key=lambda x: x.rank.value)
+        else:
+            weakest_card = min(self.cards, key=lambda x: x.rank.value)
+        return weakest_card
 
     def recv(self):
         try:
