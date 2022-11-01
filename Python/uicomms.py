@@ -37,7 +37,7 @@ class UiComms:
         elif code == 2:
             message = "02"
             for card in data:
-                message += "-" + num_to_letter[card.suit.value] + card.rank.value
+                message += "-" + num_to_letter[card.suit.value] + str(card.rank.value)
             message += "!"
         elif code == 3:
             card = num_to_letter[data[1].suit.value] + str(data[1].rank.value)
