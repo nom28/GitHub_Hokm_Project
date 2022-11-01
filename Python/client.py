@@ -241,15 +241,15 @@ class Client:
             pass
         elif turn == 4:
             if strongest_on_board_id == self.teammate:
-                card = self.__get_weakest()
+                return self.__get_weakest()
 
-        # for card in self.cards:
-        #     if card.suit == played_suit:
-        #         return card
-        #
-        # for card in self.cards:
-        #     if card.suit == self.strong:
-        #         return card
+        for card in self.cards:
+            if card.suit == self.played_suit:
+                return card
+
+        for card in self.cards:
+            if card.suit == self.strong:
+                return card
 
         return self.cards[0]
 
