@@ -14,7 +14,6 @@ class Client:
 
         self.cards = []
         self.cards_left = [(Card(Suit(suit + 1), Rank(rank + 2))) for rank in range(13) for suit in range(4)]
-        print(*self.cards_left, sep=", ")
         self.id = -1
         self.teammate = -1
         self.strong = ""
@@ -55,13 +54,13 @@ class Client:
         cards, teams, strong = cards_teams_strong.split(",")
 
         self.cards = [Card(Suit[c.split("*")[0]], Rank[c.split("*")[1]]) for c in cards.split("|")]
-        print(self.cards)
-        print("teams:", teams)
+        print(*self.cards)
+        print(teams)
         teams = teams.split(":")[1].split("|")
         my_team = teams[0].split("+") if self.id in teams[0] else teams[1].split("+")
         self.teammate = int(my_team[0]) if my_team[1] == self.id else int(my_team[1])
 
-        print("strong suit:", strong, "\n")
+        print("strong suit:", strong.split(":")[1], "\n")
 
         self.strong = Suit[strong.split(":")[1]]
 
@@ -129,7 +128,7 @@ class Client:
             print("response on strong card proposal:", response)
 
     def game_loop(self):
-        print("Game has started \n")
+        print("Game has started")
         while True:
             status, work = self.recv()
             if not work:
@@ -138,7 +137,7 @@ class Client:
 
             if status == "GAME_OVER":
                 print("\ngame over!")
-                print(*self.cards_left, sep=", ")
+                # print(*self.cards_left, sep=", ")
                 exit()
             elif status.startswith("PLAYER_DISCONNECTED"):
                 print("\nplayer disconnected\nexiting game")
@@ -227,13 +226,19 @@ class Client:
         self.get_id_and_identify_to_server()
 
     def choose_card(self, played_cards):  # v add the whole logic in here
-        if self.played_suit == "":
-            return self.__get_strongest()
 
-        played_suit = Suit[self.played_suit]
+        only_played_suit_cards = list(filter(lambda x: x.suit == self.played_suit, self.cards.copy()))
+        only_strong_cards = list(filter(lambda x: x.suit == self.strong, played_cards.copy()))
+        no_strong_cards = list(filter(lambda x: x.suit != self.strong, self.cards.copy()))
+
+        if self.played_suit == "":
+            return self.__get_strongest(only_played_suit_cards, only_strong_cards)
+
+        self.played_suit = Suit[self.played_suit]
 
         turn = self.__get_turn_in_round(played_cards)
-        strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards)
+        strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards, only_strong_cards,
+                                                                                       only_played_suit_cards)
 
         if turn == 2:
             pass
@@ -241,17 +246,19 @@ class Client:
             pass
         elif turn == 4:
             if strongest_on_board_id == self.teammate:
-                card = self.__get_weakest()
+                return self.__get_weakest(only_played_suit_cards, no_strong_cards)
+            return self.__get_lowest_winning(strongest_on_board, only_played_suit_cards, only_strong_cards,
+                                             no_strong_cards)
 
-        # for card in self.cards:
-        #     if card.suit == played_suit:
-        #         return card
-        #
-        # for card in self.cards:
-        #     if card.suit == self.strong:
-        #         return card
+        for card in self.cards:
+            if card.suit == self.played_suit:
+                return card
 
-        return card
+        for card in self.cards:
+            if card.suit == self.strong:
+                return card
+
+        return self.cards[0]
 
     def __get_turn_in_round(self, played_cards):
         turns = 1
@@ -261,34 +268,48 @@ class Client:
 
         return turns
 
-    def __get_strongest_card_on_board(self, played_cards):
-        strong_cards = list(filter(lambda x: x.suit == self.strong, played_cards.copy()))
-        if len(strong_cards) > 0:
-            strongest_card = max(strong_cards, key=lambda x: x.rank.value)
+    def __get_strongest_card_on_board(self, played_cards, only_strong_cards, only_played_suit_cards):
+        if len(only_strong_cards) > 0:
+            strongest_card = max(only_strong_cards, key=lambda x: x.rank.value)
         else:
-            strong_cards = list(filter(lambda x: x.suit == self.played_suit, played_cards.copy()))
-            strongest_card = max(strong_cards, key=lambda x: x.rank.value)
+            strongest_card = max(only_played_suit_cards, key=lambda x: x.rank.value)
 
         return played_cards.index(strongest_card) + 1, strongest_card
 
-    def __get_weakest(self):
-        weakest_cards = list(filter(lambda x: x.suit == self.played_suit, self.cards.copy()))
-        if len(weakest_cards) > 0:
-            weakest_card = min(weakest_cards, key=lambda x: x.rank.value)
+    def __get_weakest(self, only_played_suit_cards, no_strong_cards):
+        if len(only_played_suit_cards) > 0:
+            weakest_card = min(only_played_suit_cards, key=lambda x: x.rank.value)
         else:
-            weakest_cards = list(filter(lambda x: x.suit != self.strong, self.cards.copy()))
-            if len(weakest_cards) > 0:
-                weakest_card = min(weakest_cards, key=lambda x: x.rank.value)
+            if len(no_strong_cards) > 0:
+                weakest_card = min(no_strong_cards, key=lambda x: x.rank.value)
             else:
                 weakest_card = min(self.cards, key=lambda x: x.rank.value)
         return weakest_card
 
-    def __get_strongest(self):
-        strong_cards = list(filter(lambda x: x.suit != self.strong, self.cards.copy()))
-        if len(strong_cards) > 0:
-            return max(strong_cards, key=lambda x: x.rank.value)
+    def __get_strongest(self, only_played_suit_cards, only_strong_cards):
+        if len(only_played_suit_cards) > 0:
+            strongest_card = max(only_played_suit_cards, key=lambda x: x.rank.value)
         else:
-            return max(self.cards.copy(), key=lambda x: x.rank.value)
+            if len(only_strong_cards) > 0:
+                strongest_card = max(only_strong_cards, key=lambda x: x.rank.value)
+            else:
+                strongest_card = max(self.cards, key=lambda x: x.rank.value)
+        return strongest_card
+
+    def __get_lowest_winning(self, strongest_on_board, only_played_suit_cards, only_strong_cards, no_strong_cards):
+        if strongest_on_board.suit == self.played_suit:
+            only_played_suit_cards.sort(reverse=False, key=lambda x: x.rank.value)
+            for card in only_played_suit_cards:
+                if card.rank.value > strongest_on_board.rank.value:
+                    return card
+            if len(only_strong_cards) > 0:
+                return min(only_strong_cards, key=lambda x: x.rank.value)
+
+        only_strong_cards.sort(reverse=False, key=lambda x: x.rank.value)
+        for card in only_strong_cards:
+            if card.rank.value > strongest_on_board.rank.value:
+                return card
+        return self.__get_weakest(only_played_suit_cards, no_strong_cards)
 
     def recv(self):
         try:
