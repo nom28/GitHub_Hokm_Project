@@ -14,7 +14,6 @@ class Client:
 
         self.cards = []
         self.cards_left = [(Card(Suit(suit + 1), Rank(rank + 2))) for rank in range(13) for suit in range(4)]
-        print(*self.cards_left, sep=", ")
         self.id = -1
         self.teammate = -1
         self.strong = ""
@@ -56,7 +55,7 @@ class Client:
 
         self.cards = [Card(Suit[c.split("*")[0]], Rank[c.split("*")[1]]) for c in cards.split("|")]
         print(*self.cards)
-        print("teams:", teams)
+        print(teams)
         teams = teams.split(":")[1].split("|")
         my_team = teams[0].split("+") if self.id in teams[0] else teams[1].split("+")
         self.teammate = int(my_team[0]) if my_team[1] == self.id else int(my_team[1])
@@ -129,7 +128,7 @@ class Client:
             print("response on strong card proposal:", response)
 
     def game_loop(self):
-        print("Game has started \n")
+        print("Game has started")
         while True:
             status, work = self.recv()
             if not work:
@@ -138,7 +137,7 @@ class Client:
 
             if status == "GAME_OVER":
                 print("\ngame over!")
-                print(*self.cards_left, sep=", ")
+                # print(*self.cards_left, sep=", ")
                 exit()
             elif status.startswith("PLAYER_DISCONNECTED"):
                 print("\nplayer disconnected\nexiting game")
