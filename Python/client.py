@@ -23,6 +23,7 @@ class Client:
         self.score_opp = 0
         self.ui = UiComms()
         self.turn_order = [1, 3, 2, 4]
+        self.have_played = []
 
         self.init_sock()
 
@@ -168,10 +169,13 @@ class Client:
 
             for i, card in enumerate(played_cards):
                 if card.suit.value != 0:
-                    self.ui.send_msg_to_ui(3, (self.turn_order[i], card))
+                    self.ui.send_msg_to_ui(3, (self.turn_order.index(i), card))
+                    self.have_played.append(self.turn_order.index(i))
 
             card = self.choose_card(played_cards)
             print("chosen card:", card)
+            self.ui.send_msg_to_ui(3, (self.turn_order.index(self.id), card))
+            self.have_played.append(self.turn_order.index(self.id))
 
             self.send(f"play_card:{card}")
 
@@ -239,6 +243,13 @@ class Client:
 
             round_cards = [Card(Suit[str_card.split("*")[0]], Rank[str_card.split("*")[1]])
                            for str_card in game_status.split(",")[2].split(":")[1].split("|")]
+
+            for i, card in enumerate(round_cards):
+                if self.turn_order.index(i) not in self.have_played:
+                    if card.suit.value != 0:
+                        self.ui.send_msg_to_ui(3, (self.turn_order.index(i), card))
+
+            self.have_played = []
 
             for round_card in round_cards:
                 self.cards_left.remove(round_card)
