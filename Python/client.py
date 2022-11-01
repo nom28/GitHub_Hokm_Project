@@ -236,9 +236,9 @@ class Client:
         strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards)
 
         if turn == 2:
-            card = self.cards[0]
+            pass
         elif turn == 3:
-            card = self.cards[0]
+            pass
         elif turn == 4:
             if strongest_on_board_id == self.teammate:
                 card = self.__get_weakest()
@@ -251,7 +251,7 @@ class Client:
         #     if card.suit == self.strong:
         #         return card
 
-        return card
+        return self.cards[0]
 
     def __get_turn_in_round(self, played_cards):
         turns = 1
