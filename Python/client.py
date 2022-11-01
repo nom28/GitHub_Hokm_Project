@@ -215,6 +215,17 @@ class Client:
                     exit()
 
             print("round over")
+
+            round_cards = [Card(Suit[str_card.split("*")[0]], Rank[str_card.split("*")[1]])
+                           for str_card in game_status.split(",")[2].split(":")[1].split("|")]
+
+            for i, card in enumerate(round_cards):
+                if self.turn_order.index(i + 1) not in self.have_played:
+                    if card.suit.value != 0:
+                        self.ui.send_msg_to_ui(3, (self.turn_order.index(i + 1), card))
+
+            self.have_played = []
+
             print(game_status.split(",")[0])
 
             try:
@@ -240,16 +251,6 @@ class Client:
                 raise
 
             print(game_status.split(",")[2])  # round cards
-
-            round_cards = [Card(Suit[str_card.split("*")[0]], Rank[str_card.split("*")[1]])
-                           for str_card in game_status.split(",")[2].split(":")[1].split("|")]
-
-            for i, card in enumerate(round_cards):
-                if self.turn_order.index(i+1) not in self.have_played:
-                    if card.suit.value != 0:
-                        self.ui.send_msg_to_ui(3, (self.turn_order.index(i+1), card))
-
-            self.have_played = []
 
             for round_card in round_cards:
                 self.cards_left.remove(round_card)
