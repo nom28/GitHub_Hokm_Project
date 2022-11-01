@@ -236,9 +236,9 @@ class Client:
         strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards)
 
         if turn == 2:
-            pass
+            card = self.cards[0]
         elif turn == 3:
-            pass
+            card = self.cards[0]
         elif turn == 4:
             if strongest_on_board_id == self.teammate:
                 card = self.__get_weakest()
