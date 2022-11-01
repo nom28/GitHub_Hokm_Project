@@ -274,8 +274,7 @@ class Client:
         self.played_suit = Suit[self.played_suit]
 
         turn = self.__get_turn_in_round(played_cards)
-        strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards, only_strong_cards,
-                                                                                       only_played_suit_cards)
+        strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards)
 
         if turn == 2:
             pass
@@ -305,11 +304,13 @@ class Client:
 
         return turns
 
-    def __get_strongest_card_on_board(self, played_cards, only_strong_cards, only_played_suit_cards):
-        if len(only_strong_cards) > 0:
-            strongest_card = max(only_strong_cards, key=lambda x: x.rank.value)
+    def __get_strongest_card_on_board(self, played_cards):
+        strong_cards = list(filter(lambda x: x.suit == self.strong, played_cards.copy()))
+        if len(strong_cards) > 0:
+            strongest_card = max(strong_cards, key=lambda x: x.rank.value)
         else:
-            strongest_card = max(only_played_suit_cards, key=lambda x: x.rank.value)
+            suit_cards = list(filter(lambda x: x.suit == self.played_suit, played_cards.copy()))
+            strongest_card = max(suit_cards, key=lambda x: x.rank.value)
 
         return played_cards.index(strongest_card) + 1, strongest_card
 
