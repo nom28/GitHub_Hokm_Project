@@ -6,10 +6,11 @@ class UiComms:
         self.localPort = 55556
         self.BUFF_SIZE = 1024
         self.client_addr = ("127.0.0.1", 55557)
-        self.ui_file_name = ""
+
+        self.ui_file_name = os.getcwd() + "\\HokmAI\\HokmAI\\bin\\Debug\\HokmAI.exe"
 
         self.init_sock()
-        # self.open_ui_file()
+        self.open_ui_file()
 
     def init_sock(self):
         self.sock = socket(family=AF_INET, type=SOCK_DGRAM)
@@ -20,3 +21,7 @@ class UiComms:
 
     def send_msg_to_ui(self, msg):
         self.sock.sendto(msg, self.client_addr)
+
+
+if __name__ == '__main__':
+    ui = UiComms()
