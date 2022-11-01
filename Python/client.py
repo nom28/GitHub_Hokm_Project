@@ -1,5 +1,6 @@
 from socket import *
 from card_classes import *
+from uicomms import UiComms
 
 # import re
 # import random
@@ -18,6 +19,10 @@ class Client:
         self.teammate = -1
         self.strong = ""
         self.played_suit = ""
+        self.score_us = 0
+        self.score_opp = 0
+        self.ui = UiComms()
+        self.turn_order = [1, 3, 2, 4]
 
         self.init_sock()
 
@@ -32,6 +37,9 @@ class Client:
             exit()
         self.id = my_id.split(":")[1]
         print("my id:", self.id)
+
+        id_index = self.turn_order.index(int(self.id))
+        self.turn_order = self.turn_order[id_index:] + self.turn_order[:id_index]
 
         if USERNAME:
             self.send(f"username:{USERNAME}")
@@ -52,8 +60,10 @@ class Client:
             cards_teams_strong = self.handle_value_error()
 
         cards, teams, strong = cards_teams_strong.split(",")
+        self.ui.send_msg_to_ui(1, str(strong.split(":")[1]).lower())
 
         self.cards = [Card(Suit[c.split("*")[0]], Rank[c.split("*")[1]]) for c in cards.split("|")]
+        self.ui.send_msg_to_ui(2, self.cards)
         print(*self.cards)
         print(teams)
         teams = teams.split(":")[1].split("|")
@@ -156,6 +166,10 @@ class Client:
                             Card(Suit["NONE"], Rank["NONE"])
                             for c in status.split(",")[1].split(":")[1].split("|")]
 
+            for i, card in enumerate(played_cards):
+                if card.suit.value != 0:
+                    self.ui.send_msg_to_ui(3, (self.turn_order[i], card))
+
             card = self.choose_card(played_cards)
             print("chosen card:", card)
 
@@ -202,9 +216,21 @@ class Client:
             try:
                 scores = game_status.split(",")[1].split("|")
                 if str(self.id) in scores[0].split("*")[0]:
-                    print(f"Us - {scores[0].split('*')[1]}| Opp - {scores[1].split('*')[1]}")
+                    us_current_score = scores[0].split('*')[1]
+                    opp_current_score = scores[1].split('*')[1]
                 else:
-                    print(f"Us - {scores[1].split('*')[1]}| Opp - {scores[0].split('*')[1]}")
+                    us_current_score = scores[1].split('*')[1]
+                    opp_current_score = scores[0].split('*')[1]
+
+                print(f"Us - {us_current_score}| Opp - {opp_current_score}")
+
+                if self.score_us < int(us_current_score):
+                    self.score_us += 1
+                    self.ui.send_msg_to_ui(4, 0)
+                else:
+                    self.score_opp += 1
+                    self.ui.send_msg_to_ui(4, 1)
+
             except IndexError:
                 print(game_status.split(",")[1])
                 raise

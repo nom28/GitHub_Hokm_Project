@@ -1,12 +1,7 @@
-from card_classes import *
+id = 4
 
-x = "rank_J"
-z = "rank_K"
-y = "rank_6"
-l = [Rank[x], Rank[y], Rank[z]]
-print(max(l, key=lambda a: a.value))
+lst = [1, 3, 2, 4]
 
+lst = lst[lst.index(id):] + lst[:lst.index(id)]
 
-print(Rank[x].value)
-
-print(Rank[x].value + Rank[y].value)
+print(lst)
