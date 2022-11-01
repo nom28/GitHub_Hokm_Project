@@ -169,13 +169,13 @@ class Client:
 
             for i, card in enumerate(played_cards):
                 if card.suit.value != 0:
-                    self.ui.send_msg_to_ui(3, (self.turn_order.index(i), card))
-                    self.have_played.append(self.turn_order.index(i))
+                    self.ui.send_msg_to_ui(3, (self.turn_order.index(i+1), card))
+                    self.have_played.append(self.turn_order.index(i+1))
 
             card = self.choose_card(played_cards)
             print("chosen card:", card)
-            self.ui.send_msg_to_ui(3, (self.turn_order.index(self.id), card))
-            self.have_played.append(self.turn_order.index(self.id))
+            self.ui.send_msg_to_ui(3, (self.turn_order.index(int(self.id)), card))
+            self.have_played.append(self.turn_order.index(int(self.id)))
 
             self.send(f"play_card:{card}")
 
@@ -245,9 +245,9 @@ class Client:
                            for str_card in game_status.split(",")[2].split(":")[1].split("|")]
 
             for i, card in enumerate(round_cards):
-                if self.turn_order.index(i) not in self.have_played:
+                if self.turn_order.index(i+1) not in self.have_played:
                     if card.suit.value != 0:
-                        self.ui.send_msg_to_ui(3, (self.turn_order.index(i), card))
+                        self.ui.send_msg_to_ui(3, (self.turn_order.index(i+1), card))
 
             self.have_played = []
 
