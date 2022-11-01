@@ -55,13 +55,13 @@ class Client:
         cards, teams, strong = cards_teams_strong.split(",")
 
         self.cards = [Card(Suit[c.split("*")[0]], Rank[c.split("*")[1]]) for c in cards.split("|")]
-        print(self.cards)
+        print(*self.cards)
         print("teams:", teams)
         teams = teams.split(":")[1].split("|")
         my_team = teams[0].split("+") if self.id in teams[0] else teams[1].split("+")
         self.teammate = int(my_team[0]) if my_team[1] == self.id else int(my_team[1])
 
-        print("strong suit:", strong, "\n")
+        print("strong suit:", strong.split(":")[1], "\n")
 
         self.strong = Suit[strong.split(":")[1]]
 
@@ -230,7 +230,7 @@ class Client:
         if self.played_suit == "":
             return self.__get_strongest()
 
-        played_suit = Suit[self.played_suit]
+        self.played_suit = Suit[self.played_suit]
 
         turn = self.__get_turn_in_round(played_cards)
         strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards)
@@ -284,11 +284,22 @@ class Client:
         return weakest_card
 
     def __get_strongest(self):
-        strong_cards = list(filter(lambda x: x.suit != self.strong, self.cards.copy()))
-        if len(strong_cards) > 0:
-            return max(strong_cards, key=lambda x: x.rank.value)
+        suit_cards = list(filter(lambda x: x.suit == self.played_suit, self.cards.copy()))
+        if len(suit_cards) > 0:
+            strongest_card = max(suit_cards, key=lambda x: x.rank.value)
         else:
-            return max(self.cards.copy(), key=lambda x: x.rank.value)
+            strong_cards = list(filter(lambda x: x.suit == self.strong, self.cards.copy()))
+            if len(strong_cards) > 0:
+                strongest_card = max(strong_cards, key=lambda x: x.rank.value)
+            else:
+                strongest_card = max(self.cards, key=lambda x: x.rank.value)
+        return strongest_card
+
+        # strong_cards = list(filter(lambda x: x.suit != self.strong, self.cards.copy()))
+        # if len(strong_cards) > 0:
+        #     return max(strong_cards, key=lambda x: x.rank.value)
+        # else:
+        #     return max(self.cards.copy(), key=lambda x: x.rank.value)
 
     def recv(self):
         try:
