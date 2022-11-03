@@ -278,10 +278,10 @@ class Client:
         turn = self.__get_turn_in_round(played_cards)
         strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards)
 
-        if turn == 2:
-            pass
-        elif turn == 3:
-            pass
+        if turn == 2 or turn == 3:
+            if strongest_on_board_id == self.teammate:
+                return self.__get_weakest(only_played_suit_cards, no_strong_cards)
+            self.__get_optimized(only_played_suit_cards, only_strong_cards, 3, strongest_on_board, no_strong_cards)  # exp
         elif turn == 4:
             if strongest_on_board_id == self.teammate:
                 return self.__get_weakest(only_played_suit_cards, no_strong_cards)
@@ -333,7 +333,7 @@ class Client:
             if len(only_strong_cards) > 0:
                 strongest_card = max(only_strong_cards, key=lambda x: x.rank.value)
             else:
-                strongest_card = max(self.cards, key=lambda x: x.rank.value)
+                strongest_card = min(self.cards, key=lambda x: x.rank.value)
         return strongest_card
 
     def __get_strongest_first_turn(self, no_strong_cards, only_strong_cards):
@@ -345,6 +345,31 @@ class Client:
             else:
                 strongest_card = max(self.cards, key=lambda x: x.rank.value)
         return strongest_card
+
+    def __get_optimized(self, only_played_suit_cards, only_strong_cards, increased_index, strongest_on_board, no_strong_cards):
+        if len(only_played_suit_cards) > 0:
+            if strongest_on_board.suit == self.played_suit:
+                optimized_cards = [x for x in only_played_suit_cards if x.rank.value > strongest_on_board.rank.value]
+                optimized_cards = list(sorted(optimized_cards, key=lambda x: x.rank.value, reverse=True))
+                if len(optimized_cards) > 0:
+                    if len(optimized_cards) == 1:
+                        return optimized_cards[0]
+                    for changed_index in range(increased_index, 14):
+                        for card in optimized_cards:
+                            if card.rank.value - changed_index < strongest_on_board.rank.value:
+                                return card
+                else:
+                    return self.__get_weakest(only_played_suit_cards, no_strong_cards)
+            else:
+                return self.__get_weakest(only_played_suit_cards, no_strong_cards)
+        else:
+            if len(only_strong_cards) > 0:
+                if self.score_opp - self.score_us > 3:  # exp
+                    return max(only_strong_cards, key=lambda x: x.rank.value)
+                else:
+                    return min(only_strong_cards, key=lambda x: x.rank.value)
+            else:
+                 return min(self.cards, key=lambda x: x.rank.value)
 
     def __get_lowest_winning(self, strongest_on_board, only_played_suit_cards, only_strong_cards, no_strong_cards):
         if strongest_on_board.suit == self.played_suit:
