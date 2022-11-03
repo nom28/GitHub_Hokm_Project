@@ -1,6 +1,7 @@
 from socket import *
 from card_classes import *
 from uicomms import UiComms
+import sys
 
 # import re
 # import random
@@ -427,6 +428,7 @@ class Client:
 
 
 if __name__ == '__main__':
-    client = Client()
+    p = 55555 if len(sys.argv) == 1 else int(sys.argv[1])
+    client = Client(server_port=p)
     client.start_game()
 
