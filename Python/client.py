@@ -425,6 +425,7 @@ class Client:
     def send(self, data):
         self.client.send(str(len(data.encode())).zfill(8).encode() + data.encode())
 
+
 if __name__ == '__main__':
     client = Client()
     client.start_game()
