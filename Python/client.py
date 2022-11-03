@@ -265,14 +265,15 @@ class Client:
 
     def choose_card(self, played_cards):  # v add the whole logic in here
 
-        only_played_suit_cards = list(filter(lambda x: x.suit == self.played_suit, self.cards.copy()))
-        only_strong_cards = list(filter(lambda x: x.suit == self.strong, played_cards.copy()))
+        only_strong_cards = list(filter(lambda x: x.suit == self.strong, self.cards.copy()))
         no_strong_cards = list(filter(lambda x: x.suit != self.strong, self.cards.copy()))
 
         if self.played_suit == "":
-            return self.__get_strongest(only_played_suit_cards, only_strong_cards)
+            return self.__get_strongest_first_turn(no_strong_cards, only_strong_cards)
 
         self.played_suit = Suit[self.played_suit]
+
+        only_played_suit_cards = list(filter(lambda x: x.suit == self.played_suit, self.cards.copy()))
 
         turn = self.__get_turn_in_round(played_cards)
         strongest_on_board_id, strongest_on_board = self.__get_strongest_card_on_board(played_cards)
@@ -335,20 +336,38 @@ class Client:
                 strongest_card = max(self.cards, key=lambda x: x.rank.value)
         return strongest_card
 
+    def __get_strongest_first_turn(self, no_strong_cards, only_strong_cards):
+        if len(no_strong_cards) > 0:
+            strongest_card = max(no_strong_cards, key=lambda x: x.rank.value)
+        else:
+            if len(only_strong_cards) > 0:
+                strongest_card = max(only_strong_cards, key=lambda x: x.rank.value)
+            else:
+                strongest_card = max(self.cards, key=lambda x: x.rank.value)
+        return strongest_card
+
     def __get_lowest_winning(self, strongest_on_board, only_played_suit_cards, only_strong_cards, no_strong_cards):
         if strongest_on_board.suit == self.played_suit:
             only_played_suit_cards.sort(reverse=False, key=lambda x: x.rank.value)
-            for card in only_played_suit_cards:
+            if len(only_played_suit_cards) > 0:
+                for card in only_played_suit_cards:
+                    if card.rank.value > strongest_on_board.rank.value:
+                        return card
+                return self.__get_weakest(only_played_suit_cards, no_strong_cards)
+            elif len(only_strong_cards) > 0:
+                return min(only_strong_cards, key=lambda x: x.rank.value)
+            else:
+                return self.__get_weakest(only_played_suit_cards, no_strong_cards)
+        else:
+            '''
+            only_strong_cards.sort(reverse=False, key=lambda x: x.rank.value)
+            for card in only_strong_cards:
                 if card.rank.value > strongest_on_board.rank.value:
                     return card
-            if len(only_strong_cards) > 0:
-                return min(only_strong_cards, key=lambda x: x.rank.value)
+            return self.__get_weakest(only_played_suit_cards, no_strong_cards)
+            '''
+            return self.__get_weakest(only_played_suit_cards, no_strong_cards)
 
-        only_strong_cards.sort(reverse=False, key=lambda x: x.rank.value)
-        for card in only_strong_cards:
-            if card.rank.value > strongest_on_board.rank.value:
-                return card
-        return self.__get_weakest(only_played_suit_cards, no_strong_cards)
 
     def recv(self):
         try:
