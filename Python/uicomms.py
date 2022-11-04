@@ -2,6 +2,7 @@ from socket import *
 import os
 from card_classes import *
 
+
 class UiComms:
     def __init__(self):
         self.localPort = 55557
@@ -10,8 +11,8 @@ class UiComms:
 
         self.ui_file_name = os.getcwd() + "\\HokmAI\\HokmAI\\bin\\Debug\\HokmAI.exe"
 
-        self.init_sock()
-        #self.open_ui_file()
+        # self.init_sock()
+        # self.open_ui_file()
 
     def init_sock(self):
         self.sock = socket(family=AF_INET, type=SOCK_STREAM)
@@ -41,12 +42,12 @@ class UiComms:
             message += "!"
         elif code == 3:
             card = num_to_letter[data[1].suit.value] + str(data[1].rank.value)
-            message = "03-" + str(data[0]) + "-" + card + "!"
+            message = "03-" + str(data[0] + 1) + "-" + card + "!"
         elif code == 4:
             message = "04-" + str(data) + "!"
         else:
             return
-        self.conn.send(message.encode("utf-8"))
+        # self.conn.send(message.encode("utf-8"))
 
 
 if __name__ == '__main__':

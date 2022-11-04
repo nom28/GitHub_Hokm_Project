@@ -282,7 +282,7 @@ class Client:
         if turn == 2 or turn == 3:
             if strongest_on_board_id == self.teammate:
                 return self.__get_weakest(only_played_suit_cards, no_strong_cards)
-            self.__get_optimized(only_played_suit_cards, only_strong_cards, 3, strongest_on_board, no_strong_cards)  # exp
+            self.__get_optimized(only_played_suit_cards, only_strong_cards, 6, strongest_on_board, no_strong_cards)  # 6 gave me the best result but difference was small
         elif turn == 4:
             if strongest_on_board_id == self.teammate:
                 return self.__get_weakest(only_played_suit_cards, no_strong_cards)
@@ -365,10 +365,7 @@ class Client:
                 return self.__get_weakest(only_played_suit_cards, no_strong_cards)
         else:
             if len(only_strong_cards) > 0:
-                if self.score_opp - self.score_us > 3:  # exp
-                    return max(only_strong_cards, key=lambda x: x.rank.value)
-                else:
-                    return min(only_strong_cards, key=lambda x: x.rank.value)
+                return min(only_strong_cards, key=lambda x: x.rank.value)
             else:
                  return min(self.cards, key=lambda x: x.rank.value)
 
