@@ -11,8 +11,8 @@ class UiComms:
 
         self.ui_file_name = os.getcwd() + "\\HokmAI\\HokmAI\\bin\\Debug\\HokmAI.exe"
 
-        # self.init_sock()
-        # self.open_ui_file()
+        self.open_ui_file()
+        self.init_sock()
 
     def init_sock(self):
         self.sock = socket(family=AF_INET, type=SOCK_STREAM)
@@ -47,7 +47,8 @@ class UiComms:
             message = "04-" + str(data) + "!"
         else:
             return
-        # self.conn.send(message.encode("utf-8"))
+        self.conn.send(message.encode("utf-8"))
+        print(message)
 
 
 if __name__ == '__main__':
