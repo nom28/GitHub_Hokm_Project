@@ -340,7 +340,7 @@ namespace HokmAI
 
         private void Hokm_Shown(object sender, EventArgs e)
         {
-            //currentDirectory = Environment.CurrentDirectory;
+            currentDirectory = Environment.CurrentDirectory;
             //string[] currentDirectoryArr = currentDirectory.Split('\\');
             //string path = "";
             //for (int i = 0; i < currentDirectoryArr.Length - 2; i++)

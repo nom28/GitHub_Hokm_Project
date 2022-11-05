@@ -18,3 +18,14 @@ D:\hokm\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.csproj.Generat
 D:\hokm\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.csproj.CoreCompileInputs.cache
 D:\hokm\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.exe
 D:\hokm\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.pdb
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\bin\Debug\HokmAI.exe.config
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\bin\Debug\HokmAI.exe
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.csproj.AssemblyReference.cache
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.csproj.SuggestedBindingRedirects.cache
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.Hokm.resources
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.Properties.Resources.resources
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.csproj.GenerateResource.cache
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.csproj.CoreCompileInputs.cache
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.exe
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\obj\Debug\HokmAI.pdb
+F:\Python\GitHub_Hokm_Project\Python\HokmAI\HokmAI\bin\Debug\HokmAI.pdb

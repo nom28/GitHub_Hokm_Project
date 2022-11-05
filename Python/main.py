@@ -1,7 +1,11 @@
-id = 4
+from socket import *
+import os
 
-lst = [1, 3, 2, 4]
+HOST = "127.0.0.1"  # The server's hostname or IP address
+PORT = 55557  # The port used by the server
 
-lst = lst[lst.index(id):] + lst[:lst.index(id)]
-
-print(lst)
+with socket(AF_INET, SOCK_STREAM) as s:
+    s.connect((HOST, PORT))
+    while(True):
+        data = s.recv(1024)
+        print(data)

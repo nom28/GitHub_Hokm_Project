@@ -47,8 +47,8 @@ class UiComms:
             message = "04-" + str(data) + "!"
         else:
             return
-        self.conn.send(message.encode("utf-8"))
         print(message)
+        self.conn.send(message.encode("utf-8"))
 
 
 if __name__ == '__main__':
